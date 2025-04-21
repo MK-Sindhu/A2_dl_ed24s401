@@ -2,11 +2,10 @@
 
 # Deep Learning Assignment 2  
 
+This repository contains two parts of the assignment on CNN‐based image classification using a subset of the iNaturalist dataset:
 
-This repository contains implementations for:
-
-- **Part A**: Training a small CNN from scratch on a subset of the iNaturalist dataset  
-- **Part B**: Fine‑tuning a pre‑trained ResNet50 on the same data  
+- **Part A**: Train a small CNN from scratch  
+- **Part B**: Fine‑tune a pre‑trained ResNet50  
 
 ---
 
@@ -25,34 +24,46 @@ A2_dl_ed24s401/
 │   ├── train_best_resnet50.py
 │   ├── eval_partB_resnet.py
 │   └── best_resnet50.pth
-
-
-README.md                      # This file
+│
+├── inaturalist_12K/        ← **YOU MUST DOWNLOAD & CREATE THIS**
+│   ├── train/              ← 10 classes of training images
+│   └── val/               ← 10 classes of test images
+│
+└── README.md               ← This file
 ```
 
 ---
 
-## 🎯 Dataset Preparation
+## 📂 Dataset Setup
 
-1. Download the iNaturalist 12K subset.  
-2. Create a folder next to this README:
+This repository does **not** include the iNaturalist images. Before running any code:
 
-   ```bash
-   mkdir inaturalist_12K
-   mv <your_downloaded_train> inaturalist_12K/train
-   mv <your_downloaded_val>  inaturalist_12K/val
+1. **Download** the iNaturalist 12K subset (train + test) from your course or Kaggle link.  
+2. **In the project root**, create a directory named `inaturalist_12K` with two subfolders:
+
    ```
+   A2_dl_ed24s401/
+   ├── inaturalist_12K/
+   │   ├── train/
+   │   └── val/
+   └── ...
+   ```
+
+3. **Place** all training images under `inaturalist_12K/train/` and all test images under `inaturalist_12K/val/`.
 
 ---
 
 ## ⚙️ Environment Setup
 
 ```bash
-# Clone repo
+# 1. Clone this repository
 git clone https://github.com/<your‑username>/A2_dl_ed24s401.git
 cd A2_dl_ed24s401
 
-# Install dependencies
+# 2. (Optional) create & activate a virtualenv
+python -m venv venv && source venv/bin/activate
+
+# 3. Install dependencies
 pip install torch torchvision numpy matplotlib tqdm wandb
 ```
 
@@ -60,85 +71,109 @@ pip install torch torchvision numpy matplotlib tqdm wandb
 
 ## 📚 Part A: Train CNN From Scratch
 
-### 1. Train
+### 1. Training
 
 ```bash
 cd Part_A
-python train_partA_scratch.py
+python train_partA_scratch.py \
+  --data_dir ../inaturalist_12K \
+  --batch_size 32 \
+  --epochs 10
 ```
 
-- Reads data from `../inaturalist_12K/train`  
-- Uses 20% of training data for validation  
-- Trains for 10 epochs  
-- Saves best model to `best_model.pth`  
+- **`--data_dir`**: points to `inaturalist_12K` (scripts add `/train` or `/test`).  
+- Uses **20%** of training set for validation.  
+- Saves best checkpoint as `best_model.pth`.
 
-### 2. Evaluate
+### 2. Evaluation
 
 ```bash
-python eval_partA_scratch.py
+python eval_partA_scratch.py \
+  --data_dir ../inaturalist_12K \
+  --batch_size 32
 ```
 
-- Loads `best_model.pth`  
-- Evaluates on `../inaturalist_12K/test`  
-- Prints **Test Accuracy** (~ 35.65%)  
+- Loads `best_model.pth`.  
+- Evaluates on **test** split.  
+- Prints **Test Accuracy** (≈ 35.65%).
 
 ---
 
 ## 📚 Part B: Fine‑Tune Pre‑trained ResNet50
 
-### 1. Train
+### 1. Training
 
 ```bash
 cd Part_B
-python train_best_resnet50.py
+python train_best_resnet50.py \
+  --data_dir ../inaturalist_12K \
+  --batch_size 64 \
+  --epochs 6 \
+  --lr 1e-4 \
+  --augment true
 ```
 
-- Reads data from `../inaturalist_12K/train`  
-- Applies ImageNet normalization & optional augmentation  
-- Splits 20% for validation  
-- Fine‑tunes for 6 epochs at LR = 1e‑4  
-- Saves best model to `best_resnet50.pth`  
+- Applies ImageNet normalization & augmentation.  
+- Splits **20%** for validation.  
+- Saves best checkpoint as `best_resnet50.pth`.
 
-### 2. Evaluate
+### 2. Evaluation
 
 ```bash
-python eval_partB_resnet.py
+python eval_partB_resnet.py \
+  --data_dir ../inaturalist_12K \
+  --batch_size 64
 ```
 
-- Loads `best_resnet50.pth`  
-- Evaluates on `../inaturalist_12K/test`  
-- Prints **Test Accuracy** (~ 86.75%)  
+- Loads `best_resnet50.pth`.  
+- Evaluates on **test** split.  
+- Prints **Test Accuracy** (≈ 86.75%).
 
 ---
 
 ## 📈 Results Summary
 
-| Model                        | Best Val Acc      | Test Acc  |
-|------------------------------|:-----------------:|:---------:|
-| Scratch CNN (Part A)         | 36.15% (epoch 7)  | 35.65%    |
-| ResNet50 fine‑tuned (Part B) | 85.50% (epoch 4)  | 86.75%    |
+| Model                          | Best Val Acc    | Test Acc  |
+|--------------------------------|:---------------:|:---------:|
+| **Scratch CNN (Part A)**       | 36.15% (epoch 7) | 35.65%    |
+| **ResNet50 fine‑tuned (B)**    | 85.50% (epoch 4) | 86.75%    |
 
 ---
 
-## 🔧 Hyperparameters (“Sweet Spots”)
+## 🔧 Final Hyperparameters
 
-- **Part A (Scratch CNN)**  
-  - Filters = 32, Kernel = 3×3, Activation = Mish  
-  - Batch size = 32, No augmentation/batchnorm, Dropout = 0  
-  - Hidden units = 256, LR = 1e‑3  
+### Part A (Scratch CNN)
+- **Filters**: 32  
+- **Kernel**: 3×3  
+- **Activation**: Mish  
+- **Batch size**: 32  
+- **Batchnorm**: No  
+- **Dropout**: 0  
+- **Hidden units**: 256  
+- **Learning rate**: 1e‑3  
+- **Epochs**: 10  
 
-- **Part B (ResNet50)**  
-  - Strategy = full_finetune (all layers trainable)  
-  - Batch size = 64, Augment = True, LR = 1e‑4  
-  - Epochs = 6, Val split = 0.2  
+### Part B (ResNet50)
+- **Fine‑tune strategy**: full_finetune (all layers)  
+- **Batch size**: 64  
+- **Augmentation**: True  
+- **Learning rate**: 1e‑4  
+- **Epochs**: 6  
+- **Validation split**: 0.2  
 
 ---
 
 ## 📊 W&B Sweeps
 
 - **Part A**: Random search over CNN hyperparameters  
-- **Part B**: Bayesian optimization over ResNet50 fine‑tuning settings  
+- **Part B**: Bayesian optimization over ResNet50 fine‑tuning parameters  
 
-View all runs and interactive plots at:  
+🔗 View all runs & plots:  
 https://wandb.ai/ed24s401-indian-institute-of-technology-madras/assignment_2_sweep
+
+---
+
+## 📝 Github repo link
+
+🔗 https://github.com/MK-Sindhu/A2_dl_ed24s401
 
