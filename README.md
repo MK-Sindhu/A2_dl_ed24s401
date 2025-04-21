@@ -57,7 +57,7 @@ This repository does **not** include the iNaturalist images. Before running any 
 
 ```bash
 # 1. Clone this repository
-git clone https://github.com/<your‑username>/A2_dl_ed24s401.git
+git clone https://github.com/MK-Sindhu/A2_dl_ed24s401.git
 cd A2_dl_ed24s401
 
 # 2. (Optional) create & activate a virtualenv
