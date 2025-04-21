@@ -40,7 +40,7 @@ README.md                      # This file
    ```bash
    mkdir inaturalist_12K
    mv <your_downloaded_train> inaturalist_12K/train
-   mv <your_downloaded_test>  inaturalist_12K/test
+   mv <your_downloaded_val>  inaturalist_12K/val
    ```
 
 ---
