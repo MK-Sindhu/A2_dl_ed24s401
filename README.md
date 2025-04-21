@@ -38,7 +38,7 @@ A2_dl_ed24s401/
 
 This repository does **not** include the iNaturalist images. Before running any code:
 
-1. **Download** the iNaturalist 12K subset (train + test) from your course or Kaggle link.  
+1. **Download** the iNaturalist 12K subset (train + test) from this link. (https://storage.googleapis.com/wandb_datasets/nature_12K.zip)  
 2. **In the project root**, create a directory named `inaturalist_12K` with two subfolders:
 
    ```
